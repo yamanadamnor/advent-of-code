@@ -1,7 +1,7 @@
 import sys
+import re
 
 valid_fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
-
 correct = 0
 text = ""
 passports = []
@@ -28,73 +28,57 @@ for entry in list:
 #     if all(valid in passport.keys() for valid in valid_fields):
 #         correct += 1
 
-valid_rules = [
-    {
-        "name": "byr",
-        "length": 4,
-        "min": 1920,
-        "max": 2002
-
-    },
-    {
-        "name": "iyr",
-        "length": 4,
-        "min": 2010,
-        "max": 2020
-
-    },
-    {
-        "name": "eyr",
-        "length": 4,
-        "min": 2020,
-        "max": 2030
-
-    },
-    {
-        "name": "hgt",
-        "in": {
-            "min": 59,
-            "max": 76
-        },
-        "cm": {
-            "min": 150,
-            "max": 193
-        }
-
-    },
-    {
-        "name": "hcl",
-        "first": "#",
-        "length": 6,
-        "number": {
-            "min": 0,
-            "max": 9
-        },
-        "letter": {
-            "min": "a",
-            "max": "f"
-        }
-
-
-    },
-    {
-        "name": "ecl",
-        "color": ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"],
-    },
-    {
-        "name": "pid",
-        "first": 0,
-        "length": 9,
-
-    },
-]
-
-
-def val_byr(dict):
-
 
 def validation(dict):
+    byr = ("byr" in dict and len(dict["byr"]) == 4
+           and int(dict["byr"]) >= 1920 and int(dict["byr"]) <= 2002)
+
+    iyr = ("iyr" in dict and len(dict["iyr"]) == 4
+           and int(dict["iyr"]) >= 2010 and int(dict["iyr"]) <= 2020)
+
+    eyr = ("eyr" in dict and len(dict["eyr"]) == 4
+           and int(dict["eyr"]) >= 2020 and int(dict["eyr"]) <= 2030 )
+
+    hgt = False
+
+    if "hgt" in dict and re.match("(\d+)([a-z]+)", dict["hgt"]):
+
+        hgt_str = re.split("(\d+)([a-z]+)", dict["hgt"])
+
+        if (hgt_str[2] == "cm" and int(hgt_str[1]) >= 150
+                and int(hgt_str[1]) <= 193):
+            hgt = True
+
+        elif (hgt_str[2] == "in" and int(hgt_str[1]) >= 59
+              and int(hgt_str[1]) <= 76):
+            hgt = True
+
+    hcl = False
+
+    if ("hcl" in dict and len(dict["hcl"]) == 7 and
+            re.match("^#([a-fA-F0-9]+$)", dict["hcl"])):
+        hcl = True
+    ecl = ("ecl" in dict and dict["ecl"] in
+           ["amb", "blu", "brn" ,"gry", "grn" ,"hzl", "oth"])
+
+    pid = ("pid" in dict and len(dict["pid"]) == 9
+           and re.match("(\d+)", dict["pid"]))
+
+
+
+    # print(byr , iyr , eyr , hgt , hcl , ecl , pid)
+    if byr and iyr and eyr and hgt and hcl and ecl and pid:
+        return True
+    else:
+        return False
+
 
 
     # -------------------- Part 2 --------------------
 for passport in passports:
+    if validation(passport):
+        correct += 1
+
+
+
+print(correct)
