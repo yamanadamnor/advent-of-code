@@ -78,6 +78,7 @@ def validation(dict):
 for passport in passports:
     if validation(passport):
         correct += 1
+        print(passport)
 
 
 
